@@ -1,0 +1,50 @@
+=== SYSTEM MEMORY BEFORE ===
+Mach Virtual Memory Statistics: (page size of 16384 bytes)
+Pages free:                              171177.
+Pages active:                           1701616.
+Pages inactive:                         1357383.
+Pages speculative:                       374955.
+Pages throttled:                              0.
+Pages wired down:                        532288.
+Pages purgeable:                         202474.
+"Translation faults":                  56123878.
+Pages copy-on-write:                    2798462.
+Pages zero filled:                     34407694.
+Pages reactivated:                        62489.
+Pages purged:                            300562.
+File-backed pages:                      1771575.
+Anonymous pages:                        1662379.
+Pages stored in compressor:                   0.
+Pages occupied by compressor:                 0.
+Decompressions:                               0.
+Compressions:                                 0.
+Pageins:                                1622544.
+Pageouts:                                     0.
+Swapins:                                      0.
+Swapouts:                                     0.
+
+
+=== SYSTEM MEMORY AFTER ===
+Mach Virtual Memory Statistics: (page size of 16384 bytes)
+Pages free:                              157703.
+Pages active:                           1691227.
+Pages inactive:                         1352654.
+Pages speculative:                       374988.
+Pages throttled:                              0.
+Pages wired down:                        560940.
+Pages purgeable:                         188543.
+"Translation faults":                  56260815.
+Pages copy-on-write:                    2805419.
+Pages zero filled:                     34546482.
+Pages reactivated:                        62502.
+Pages purged:                            300754.
+File-backed pages:                      1771614.
+Anonymous pages:                        1647256.
+Pages stored in compressor:                   0.
+Pages occupied by compressor:                 0.
+Decompressions:                               0.
+Compressions:                                 0.
+Pageins:                                1622876.
+Pageouts:                                     0.
+Swapins:                                      0.
+Swapouts:                                     0.

@@ -1,0 +1,1 @@
+./build/bin/llama-completion -m models/Meta-Llama-3.1-8B-Instruct-Q4_K_M.gguf -ngl 99 -c 8192 -n 512 -f prompts/medium.txt --seed 42 --temp 0 -no-cnv --cache-type-k q4_0 --cache-type-v q4_0

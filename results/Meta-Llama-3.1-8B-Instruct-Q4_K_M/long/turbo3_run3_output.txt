@@ -1,0 +1,40 @@
+ggml_metal_device_init: tensor API disabled for pre-M5 and pre-A19 devices
+ggml_metal_library_init: using embedded metal library
+ggml_metal_library_init: loaded in 0.012 sec
+ggml_metal_rsets_init: creating a residency set collection (keep_alive = 180 s)
+ggml_metal_device_init: GPU name:   MTL0
+ggml_metal_device_init: GPU family: MTLGPUFamilyApple9  (1009)
+ggml_metal_device_init: GPU family: MTLGPUFamilyCommon3 (3003)
+ggml_metal_device_init: GPU family: MTLGPUFamilyMetal3  (5001)
+ggml_metal_device_init: simdgroup reduction   = true
+ggml_metal_device_init: simdgroup matrix mul. = true
+ggml_metal_device_init: has unified memory    = true
+ggml_metal_device_init: has bfloat            = true
+ggml_metal_device_init: has tensor            = false
+ggml_metal_device_init: use residency sets    = true
+ggml_metal_device_init: use shared buffers    = true
+ggml_metal_device_init: recommendedMaxWorkingSetSize  = 51539.61 MB
+build: 8506 (dfc109798) with AppleClang 16.0.0.16000026 for Darwin arm64
+main: llama backend init
+main: load the model and apply lora adapter, if any
+common_init_result: fitting params to device memory, for bugs during this step try to reproduce them with -fit off, or provide --verbose logs if the bug only occurs with -fit on
+ggml/src/ggml.c:1760: GGML_ASSERT(obj_new) failed
+WARNING: Using native backtrace. Set GGML_BACKTRACE_LLDB for more info.
+WARNING: GGML_BACKTRACE_LLDB may cause native MacOS Terminal.app to crash.
+See: https://github.com/ggml-org/llama.cpp/pull/17869
+0   libggml-base.0.9.8.dylib            0x0000000104e5fee8 ggml_print_backtrace + 276
+1   libggml-base.0.9.8.dylib            0x0000000104e600d4 ggml_abort + 156
+2   libggml-base.0.9.8.dylib            0x0000000104e61c68 ggml_new_tensor_impl + 800
+3   libggml-base.0.9.8.dylib            0x0000000104e684fc ggml_view_2d + 76
+4   libllama.0.0.8506.dylib             0x0000000104b410f0 _ZN14llama_kv_cacheC2ERK11llama_model9ggml_typeS3_bbbjjjj14llama_swa_typeRKNSt3__18functionIFbiEEERKNS6_IFiiEEE + 1924
+5   libllama.0.0.8506.dylib             0x0000000104bd9938 _ZNK11llama_model13create_memoryERK19llama_memory_paramsRK13llama_cparams + 700
+6   libllama.0.0.8506.dylib             0x0000000104b0c858 _ZN13llama_contextC2ERK11llama_model20llama_context_params + 3016
+7   libllama.0.0.8506.dylib             0x0000000104b16c7c llama_init_from_model + 484
+8   libllama.0.0.8506.dylib             0x0000000104af3a60 _ZL28llama_get_device_memory_dataPKcPK18llama_model_paramsPK20llama_context_paramsRNSt3__16vectorIP19ggml_backend_deviceNS7_9allocatorISA_EEEERjSF_SF_14ggml_log_level + 236
+9   libllama.0.0.8506.dylib             0x0000000104aeedfc _ZL21llama_params_fit_implPKcP18llama_model_paramsP20llama_context_paramsPfP32llama_model_tensor_buft_overridePmj14ggml_log_level + 168
+10  libllama.0.0.8506.dylib             0x0000000104aeec20 llama_params_fit + 108
+11  llama-completion                    0x00000001044b82f0 _ZN18common_init_resultC2ER13common_params + 392
+12  llama-completion                    0x00000001044b97c4 _Z23common_init_from_paramsR13common_params + 60
+13  llama-completion                    0x00000001043eed0c main + 780
+14  dyld                                0x0000000191dd8274 start + 2840
+./run_experiment.sh: line 161: 19809 Abort trap: 6           build/bin/llama-completion -m models/Meta-Llama-3.1-8B-Instruct-Q4_K_M.gguf -ngl 99 -c 8192 -n 512 -f prompts/long.txt --seed 42 --temp 0 -no-cnv --cache-type-k turbo3 --cache-type-v turbo3

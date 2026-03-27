@@ -1,0 +1,291 @@
+ggml_metal_device_init: tensor API disabled for pre-M5 and pre-A19 devices
+ggml_metal_library_init: using embedded metal library
+ggml_metal_library_init: loaded in 0.010 sec
+ggml_metal_rsets_init: creating a residency set collection (keep_alive = 180 s)
+ggml_metal_device_init: GPU name:   MTL0
+ggml_metal_device_init: GPU family: MTLGPUFamilyApple9  (1009)
+ggml_metal_device_init: GPU family: MTLGPUFamilyCommon3 (3003)
+ggml_metal_device_init: GPU family: MTLGPUFamilyMetal3  (5001)
+ggml_metal_device_init: simdgroup reduction   = true
+ggml_metal_device_init: simdgroup matrix mul. = true
+ggml_metal_device_init: has unified memory    = true
+ggml_metal_device_init: has bfloat            = true
+ggml_metal_device_init: has tensor            = false
+ggml_metal_device_init: use residency sets    = true
+ggml_metal_device_init: use shared buffers    = true
+ggml_metal_device_init: recommendedMaxWorkingSetSize  = 51539.61 MB
+build: 8506 (dfc109798) with AppleClang 16.0.0.16000026 for Darwin arm64
+main: llama backend init
+main: load the model and apply lora adapter, if any
+common_init_result: fitting params to device memory, for bugs during this step try to reproduce them with -fit off, or provide --verbose logs if the bug only occurs with -fit on
+llama_params_fit_impl: projected to use 4949 MiB of device memory vs. 49151 MiB of free device memory
+llama_params_fit_impl: will leave 44201 >= 1024 MiB of free device memory, no changes needed
+llama_params_fit: successfully fit params to free device memory
+llama_params_fit: fitting params to free memory took 0.17 seconds
+llama_model_load_from_file_impl: using device MTL0 (Apple M3 Max) (unknown id) - 49151 MiB free
+llama_model_loader: loaded meta data with 33 key-value pairs and 292 tensors from models/Meta-Llama-3.1-8B-Instruct-Q4_K_M.gguf (version GGUF V3 (latest))
+llama_model_loader: Dumping metadata keys/values. Note: KV overrides do not apply in this output.
+llama_model_loader: - kv   0:                       general.architecture str              = llama
+llama_model_loader: - kv   1:                               general.type str              = model
+llama_model_loader: - kv   2:                               general.name str              = Meta Llama 3.1 8B Instruct
+llama_model_loader: - kv   3:                           general.finetune str              = Instruct
+llama_model_loader: - kv   4:                           general.basename str              = Meta-Llama-3.1
+llama_model_loader: - kv   5:                         general.size_label str              = 8B
+llama_model_loader: - kv   6:                            general.license str              = llama3.1
+llama_model_loader: - kv   7:                               general.tags arr[str,6]       = ["facebook", "meta", "pytorch", "llam...
+llama_model_loader: - kv   8:                          general.languages arr[str,8]       = ["en", "de", "fr", "it", "pt", "hi", ...
+llama_model_loader: - kv   9:                          llama.block_count u32              = 32
+llama_model_loader: - kv  10:                       llama.context_length u32              = 131072
+llama_model_loader: - kv  11:                     llama.embedding_length u32              = 4096
+llama_model_loader: - kv  12:                  llama.feed_forward_length u32              = 14336
+llama_model_loader: - kv  13:                 llama.attention.head_count u32              = 32
+llama_model_loader: - kv  14:              llama.attention.head_count_kv u32              = 8
+llama_model_loader: - kv  15:                       llama.rope.freq_base f32              = 500000.000000
+llama_model_loader: - kv  16:     llama.attention.layer_norm_rms_epsilon f32              = 0.000010
+llama_model_loader: - kv  17:                          general.file_type u32              = 15
+llama_model_loader: - kv  18:                           llama.vocab_size u32              = 128256
+llama_model_loader: - kv  19:                 llama.rope.dimension_count u32              = 128
+llama_model_loader: - kv  20:                       tokenizer.ggml.model str              = gpt2
+llama_model_loader: - kv  21:                         tokenizer.ggml.pre str              = llama-bpe
+llama_model_loader: - kv  22:                      tokenizer.ggml.tokens arr[str,128256]  = ["!", "\"", "#", "$", "%", "&", "'", ...
+llama_model_loader: - kv  23:                  tokenizer.ggml.token_type arr[i32,128256]  = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, ...
+llama_model_loader: - kv  24:                      tokenizer.ggml.merges arr[str,280147]  = ["Ġ Ġ", "Ġ ĠĠĠ", "ĠĠ ĠĠ", "...
+llama_model_loader: - kv  25:                tokenizer.ggml.bos_token_id u32              = 128000
+llama_model_loader: - kv  26:                tokenizer.ggml.eos_token_id u32              = 128009
+llama_model_loader: - kv  27:                    tokenizer.chat_template str              = {{- bos_token }}\n{%- if custom_tools ...
+llama_model_loader: - kv  28:               general.quantization_version u32              = 2
+llama_model_loader: - kv  29:                      quantize.imatrix.file str              = /models_out/Meta-Llama-3.1-8B-Instruc...
+llama_model_loader: - kv  30:                   quantize.imatrix.dataset str              = /training_dir/calibration_datav3.txt
+llama_model_loader: - kv  31:             quantize.imatrix.entries_count i32              = 224
+llama_model_loader: - kv  32:              quantize.imatrix.chunks_count i32              = 125
+llama_model_loader: - type  f32:   66 tensors
+llama_model_loader: - type q4_K:  193 tensors
+llama_model_loader: - type q6_K:   33 tensors
+print_info: file format = GGUF V3 (latest)
+print_info: file type   = Q4_K - Medium
+print_info: file size   = 4.58 GiB (4.89 BPW) 
+load: 0 unused tokens
+load: printing all EOG tokens:
+load:   - 128001 ('<|end_of_text|>')
+load:   - 128008 ('<|eom_id|>')
+load:   - 128009 ('<|eot_id|>')
+load: special tokens cache size = 256
+load: token to piece cache size = 0.7999 MB
+print_info: arch                  = llama
+print_info: vocab_only            = 0
+print_info: no_alloc              = 0
+print_info: n_ctx_train           = 131072
+print_info: n_embd                = 4096
+print_info: n_embd_inp            = 4096
+print_info: n_layer               = 32
+print_info: n_head                = 32
+print_info: n_head_kv             = 8
+print_info: n_rot                 = 128
+print_info: n_swa                 = 0
+print_info: is_swa_any            = 0
+print_info: n_embd_head_k         = 128
+print_info: n_embd_head_v         = 128
+print_info: n_gqa                 = 4
+print_info: n_embd_k_gqa          = 1024
+print_info: n_embd_v_gqa          = 1024
+print_info: f_norm_eps            = 0.0e+00
+print_info: f_norm_rms_eps        = 1.0e-05
+print_info: f_clamp_kqv           = 0.0e+00
+print_info: f_max_alibi_bias      = 0.0e+00
+print_info: f_logit_scale         = 0.0e+00
+print_info: f_attn_scale          = 0.0e+00
+print_info: n_ff                  = 14336
+print_info: n_expert              = 0
+print_info: n_expert_used         = 0
+print_info: n_expert_groups       = 0
+print_info: n_group_used          = 0
+print_info: causal attn           = 1
+print_info: pooling type          = 0
+print_info: rope type             = 0
+print_info: rope scaling          = linear
+print_info: freq_base_train       = 500000.0
+print_info: freq_scale_train      = 1
+print_info: n_ctx_orig_yarn       = 131072
+print_info: rope_yarn_log_mul     = 0.0000
+print_info: rope_finetuned        = unknown
+print_info: model type            = 8B
+print_info: model params          = 8.03 B
+print_info: general.name          = Meta Llama 3.1 8B Instruct
+print_info: vocab type            = BPE
+print_info: n_vocab               = 128256
+print_info: n_merges              = 280147
+print_info: BOS token             = 128000 '<|begin_of_text|>'
+print_info: EOS token             = 128009 '<|eot_id|>'
+print_info: EOT token             = 128001 '<|end_of_text|>'
+print_info: EOM token             = 128008 '<|eom_id|>'
+print_info: LF token              = 198 'Ċ'
+print_info: EOG token             = 128001 '<|end_of_text|>'
+print_info: EOG token             = 128008 '<|eom_id|>'
+print_info: EOG token             = 128009 '<|eot_id|>'
+print_info: max token length      = 256
+load_tensors: loading model tensors, this can take a while... (mmap = true, direct_io = false)
+load_tensors: offloading output layer to GPU
+load_tensors: offloading 31 repeating layers to GPU
+load_tensors: offloaded 33/33 layers to GPU
+load_tensors:   CPU_Mapped model buffer size =   281.81 MiB
+load_tensors:  MTL0_Mapped model buffer size =  4685.30 MiB
+........................................................................................
+common_init_result: added <|end_of_text|> logit bias = -inf
+common_init_result: added <|eom_id|> logit bias = -inf
+common_init_result: added <|eot_id|> logit bias = -inf
+llama_context: constructing llama_context
+llama_context: n_seq_max     = 1
+llama_context: n_ctx         = 8192
+llama_context: n_ctx_seq     = 8192
+llama_context: n_batch       = 2048
+llama_context: n_ubatch      = 512
+llama_context: causal_attn   = 1
+llama_context: flash_attn    = auto
+llama_context: kv_unified    = false
+llama_context: freq_base     = 500000.0
+llama_context: freq_scale    = 1
+llama_context: n_ctx_seq (8192) < n_ctx_train (131072) -- the full capacity of the model will not be utilized
+ggml_metal_init: allocating
+ggml_metal_init: found device: Apple M3 Max
+ggml_metal_init: picking default device: Apple M3 Max
+ggml_metal_init: use fusion         = true
+ggml_metal_init: use concurrency    = true
+ggml_metal_init: use graph optimize = true
+llama_context:        CPU  output buffer size =     0.49 MiB
+llama_kv_cache:       MTL0 KV buffer size =   288.00 MiB
+llama_kv_cache: size =  288.00 MiB (  8192 cells,  32 layers,  1/1 seqs), K (q4_0):  144.00 MiB, V (q4_0):  144.00 MiB
+sched_reserve: reserving ...
+sched_reserve: Flash Attention was auto, set to enabled
+sched_reserve: resolving fused Gated Delta Net support:
+sched_reserve: fused Gated Delta Net (autoregressive) enabled
+sched_reserve: fused Gated Delta Net (chunked) enabled
+sched_reserve:       MTL0 compute buffer size =   258.50 MiB
+sched_reserve:        CPU compute buffer size =    32.01 MiB
+sched_reserve: graph nodes  = 999
+sched_reserve: graph splits = 2
+sched_reserve: reserve took 11.42 ms, sched copies = 1
+common_init_from_params: warming up the model with an empty run - please wait ... (--no-warmup to disable)
+main: llama threadpool init, n_threads = 12
+
+system_info: n_threads = 12 (n_threads_batch = 12) / 16 | MTL : EMBED_LIBRARY = 1 | CPU : NEON = 1 | ARM_FMA = 1 | FP16_VA = 1 | MATMUL_INT8 = 1 | DOTPROD = 1 | ACCELERATE = 1 | REPACK = 1 | 
+
+sampler seed: 42
+sampler params: 
+	repeat_last_n = 64, repeat_penalty = 1.000, frequency_penalty = 0.000, presence_penalty = 0.000
+	dry_multiplier = 0.000, dry_base = 1.750, dry_allowed_length = 2, dry_penalty_last_n = -1
+	top_k = 40, top_p = 0.950, min_p = 0.050, xtc_probability = 0.000, xtc_threshold = 0.100, typical_p = 1.000, top_n_sigma = -1.000, temp = 0.000
+	mirostat = 0, mirostat_lr = 0.100, mirostat_ent = 5.000, adaptive_target = -1.000, adaptive_decay = 0.900
+sampler chain: logits -> ?penalties -> ?dry -> ?top-n-sigma -> top-k -> ?typical -> top-p -> min-p -> ?xtc -> temp-ext -> dist 
+generate: n_ctx = 8192, n_batch = 2048, n_predict = 512, n_keep = 1
+
+You are a senior distributed systems architect. A startup is building a real-time collaborative document editor (similar to Google Docs) that must support 10 million concurrent users across 5 geographic regions. The system must guarantee:
+
+1. Sub-100ms latency for local edits
+2. Eventual consistency with a convergence window under 2 seconds globally
+3. Offline editing support with automatic conflict resolution upon reconnection
+4. End-to-end encryption where the server never sees plaintext content
+5. A plugin architecture allowing third-party developers to extend the editor
+
+The current prototype uses a single PostgreSQL database and WebSocket connections, which obviously won't scale.
+
+Please provide a comprehensive technical architecture covering the following aspects:
+
+**Data Layer**: What CRDT variant would you use for the document model? Compare operation-based vs state-based CRDTs for this use case. How would you handle rich text formatting, embedded media, and concurrent table editing? Discuss the trade-offs between Yjs, Automerge, and Diamond Types.
+
+For the CRDT implementation, consider the following constraints:
+- Documents can contain up to 500 pages with mixed content types (text, tables, images, code blocks, mathematical equations)
+- Tables can have up to 10,000 rows and 100 columns with formulas that reference other cells
+- Users frequently copy-paste large sections (10,000+ characters) between documents
+- Some documents have 50+ simultaneous editors in the same section
+- The undo/redo history must be per-user and must work correctly even with concurrent edits from others
+- Documents must support comments and suggestions (like Google Docs "suggesting" mode) that are themselves collaborative
+
+**Networking**: Design the real-time sync protocol. How do you handle presence awareness (cursors, selections)? What transport layer would you use — WebSockets, WebTransport, or SSE? How do you implement the offline queue and reconnection logic? Describe your approach to delta compression for bandwidth optimization.
+
+Consider these networking challenges:
+- Users on mobile networks with 500ms+ latency and frequent disconnections
+- Corporate firewalls that block WebSocket upgrades and require HTTP/2 fallback
+- A user who was offline for 2 weeks reconnects with 50,000 pending operations while 200 other users have been actively editing
+- Presence information must update within 200ms so cursor positions feel real-time
+- The system must handle a "thundering herd" scenario where 100,000 users open the same document simultaneously (e.g., a company-wide announcement)
+
+**Storage & Persistence**: How do you persist CRDT state efficiently? What's your strategy for document snapshots vs operation logs? How do you handle garbage collection of tombstones? Design the backup and point-in-time recovery system.
+
+Address these storage requirements:
+- Documents must be recoverable to any point in time within the last 365 days
+- The operation log for a heavily-edited document can reach 10 million operations
+- Snapshots must be taken without blocking active editing sessions
+- Cold storage costs must be minimized — not all documents are equally active
+- GDPR compliance requires the ability to permanently delete all content from a specific user across all document versions and operation logs within 30 days of request
+- Search must work across all documents a user has access to, with results in under 500ms
+
+**Security**: How do you implement end-to-end encryption while still supporting real-time collaboration? Discuss key management, key rotation, and how you handle users joining/leaving a shared document. What encryption scheme allows the server to merge encrypted operations without decryption?
+
+Security constraints:
+- Some customers require that encryption keys never leave their on-premise HSMs
+- Key rotation must happen every 90 days without disrupting active sessions
+- When a user is removed from a document, they must lose the ability to decrypt any future content within 60 seconds
+- The system must pass SOC 2 Type II and ISO 27001 audits
+- Admin users need the ability to perform content moderation without breaking E2E encryption (legal compliance for certain enterprise customers)
+- Audit logs must capture who accessed what and when, without revealing document content
+
+**Infrastructure**: Design the multi-region deployment. How do you route users to the nearest edge node? What happens during a region failover? How do you handle the "split brain" scenario? Describe your approach to capacity planning and auto-scaling.
+
+Infrastructure constraints:
+- The five regions are US-East, US-West, EU-West, AP-Southeast, and AP-Northeast
+- Each region must be able to operate independently for up to 4 hours if inter-region connectivity is lost
+- P99 latency for API calls must be under 200ms
+- The system must handle a 10x traffic spike within 5 minutes (auto-scaling)
+- Cost optimization: the system should scale down to minimal infrastructure during off-peak hours (weekends, holidays)
+- Deployment must support both Kubernetes and bare-metal for customers who cannot use cloud providers
+
+**Plugin System**: How do you sandbox third-party plugins to prevent security issues while giving them useful access to the document model? Discuss your API surface, versioning strategy, and how you handle plugins that need to modify the CRDT state.
+
+Plugin system requirements:
+- Plugins must not be able to access data from documents they are not installed on
+- A misbehaving plugin must not affect editor performance (CPU, memory, network limits)
+- Plugins need access to a subset of the CRDT API to read and modify document content
+- The plugin marketplace must support code review and automated security scanning
+- Plugins must work offline and sync their state when reconnecting
+- Plugin developers need a local development environment with hot-reload
+- The system must support both client-side plugins (UI extensions) and server-side plugins (webhooks, integrations)
+- Backward compatibility: removing a plugin must not corrupt the document, even if the plugin added custom content types
+
+For each section, provide specific technology choices with version numbers where relevant, justify each decision against alternatives you considered, describe at least two failure modes and their mitigations, and estimate the engineering effort required to build each component. 
+
+**Bonus points for:**
+
+* Providing a detailed roadmap for the next 6-12 months, including milestones, and the engineering team's plan to achieve them
+* Including a high-level architecture diagram for the entire system
+* Discussing the potential for integrating with other services (e.g., authentication, search, analytics) and how you would handle service discovery and load balancing
+* Providing a plan for testing and validation, including unit tests, integration tests, and end-to-end tests
+* Discussing the potential for using machine learning or AI to improve the system's performance, scalability, or user experience
+* Including a plan for monitoring and logging, including metrics, alerts, and log analysis
+* Discussing the potential for using serverless or edge computing to improve the system's performance, scalability, or user experience
+* Including a plan for disaster recovery and business continuity, including backup and restore procedures, and a plan for recovering from major outages
+* Discussing the potential for integrating with other services (e.g., project management, communication tools) and how you would handle service discovery and load balancing
+* Providing a plan for security audits and penetration testing, including a plan for addressing vulnerabilities and weaknesses
+* Discussing the potential for using open-source or community-driven projects to improve the system's performance, scalability, or user experience
+* Including a plan for training and support, including documentation, tutorials, and customer support procedures
+* Discussing the potential for integrating with other services (e.g., AI-powered content analysis) and how you would handle service discovery and load balancing
+* Providing a plan for evaluating and selecting third-party services (e.g., authentication, search) and how you would handle service discovery and load balancing
+* Discussing the potential for using blockchain or distributed ledger technology to improve the system's security, scalability, or user experience
+* Including a plan for evaluating and selecting open-source or community-driven projects and how you would handle service discovery and load balancing
+* Discussing the potential for integrating with other services (e.g., IoT devices) and how you would handle service discovery and load balancing
+* Providing a plan for evaluating and selecting cloud providers and how you would handle service discovery and load balancing
+* Discussing the potential for using edge computing or IoT devices to improve the system's performance, scalability, or user experience
+* Including a plan for evaluating and selecting third-party services (e.g., authentication, search) and how you would handle service discovery and load balancing
+* Discussing the potential for integrating with other
+
+common_perf_print:    sampling time =      82.66 ms
+common_perf_print:    samplers time =      56.97 ms /  1762 tokens
+common_perf_print:        load time =     277.50 ms
+common_perf_print: prompt eval time =    2508.97 ms /  1250 tokens (    2.01 ms per token,   498.21 tokens per second)
+common_perf_print:        eval time =   15006.00 ms /   511 runs   (   29.37 ms per token,    34.05 tokens per second)
+common_perf_print:       total time =   17606.44 ms /  1761 tokens
+common_perf_print: unaccounted time =       8.82 ms /   0.1 %      (total - sampling - prompt eval - eval) / (total)
+common_perf_print:    graphs reused =        508
+llama_memory_breakdown_print: | memory breakdown [MiB]  | total    free    self   model   context   compute    unaccounted |
+llama_memory_breakdown_print: |   - MTL0 (Apple M3 Max) | 49152 = 43919 + (5231 =  4685 +     288 +     258) +           0 |
+llama_memory_breakdown_print: |   - Host                |                   313 =   281 +       0 +      32                |
+ggml_metal_free: deallocating
