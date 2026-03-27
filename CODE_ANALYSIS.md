@@ -51,13 +51,15 @@ Meanwhile, the Metal dequantization shaders have **removed** the inverse rotatio
 
 This creates a fragile coupling: if the pre-rotation is ever skipped (model with non-aligned head dims), Q and K/V end up in different vector spaces, and attention produces garbage.
 
-For Gemma 3 (`n_embd_head_k = 256`), the condition passes — so the rotation does happen. But the output still degrades after ~250 tokens. My hypothesis is that the cumulative quantization error at 3.25 bits compounds over the sequence with Gemma 3's architecture:
+For Gemma 3 (`n_embd_head_k = 256`), the condition passes — so the rotation does happen. But the output still degrades immediately. The cumulative quantization error at 3.25 bits is too aggressive for this architecture:
 
 - 256-dim heads where small per-element errors add up
 - GQA with 4 KV heads, each serving 2 query heads (amplifies error)
 - Sliding window attention + global attention = two separate KV caches, both quantized
 
-After enough tokens, the attention distribution becomes noisy enough to attend to wrong positions.
+### Llama 3.1 crash (new finding in v2)
+
+On Llama 3.1 8B (128-dim heads, 8 KV heads), turbo3 doesn't even get to inference — it crashes during KV cache construction with `GGML_ASSERT(obj_new) failed`. The turbo3 block structure appears incompatible with this head dimension/KV head count combination. This happens consistently across all prompt lengths and runs.
 
 ---
 
@@ -100,8 +102,11 @@ A possible workaround would be disabling Flash Attention (`--flash-attn off`), b
 | Issue | Severity | Type |
 |-------|----------|------|
 | WHT rotation coupling | High | Design fragility |
-| Cumulative quantization error | High | Possibly model-specific |
+| Cumulative quantization error | High | Confirmed on 2 models |
+| KV cache init crash (Llama) | Critical | Incompatible with 128-dim heads |
 | CPU quantization stub | Medium | Incomplete implementation |
 | Missing turbo4 non-vec kernels | Critical | Incomplete implementation |
 
 The fork is clearly a work-in-progress proof of concept. The underlying algorithm is well-motivated, but the llama.cpp integration has gaps. None of these are fundamental flaws — they're all fixable.
+
+**v2 update:** Testing on Llama 3.1 8B revealed that turbo3 is not just a quality issue — it crashes outright on models with 128-dim heads. This narrows the scope of supported architectures significantly.

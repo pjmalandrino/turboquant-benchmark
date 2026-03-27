@@ -2,21 +2,20 @@
 
 **An honest, reproducible benchmark of [TurboQuant](https://github.com/TheTom/llama-cpp-turboquant) KV cache quantization on Apple Silicon.**
 
-TurboQuant promises up to 4.6x KV cache compression with minimal quality loss. I tested it on Gemma 3 4B. Here's what I found.
+TurboQuant promises up to 4.6x KV cache compression with minimal quality loss. I tested it on two models, three prompt lengths, with standard KV quantization (q8_0, q4_0) as reference. Here's what I found.
 
 ---
 
 ## TL;DR
 
-| | Baseline (f16) | Turbo3 (3.25 bpv) | Turbo4 (4.25 bpv) |
-|---|---|---|---|
-| **KV cache** | 334 MiB | **73 MiB (-78%)** | **89 MiB (-73%)** |
-| **Compression** | 1x | **4.6x** | **3.8x** |
-| **Generation speed** | 94.5 t/s | 58.0 t/s (-39%) | N/A |
-| **Output quality** | Coherent | Garbage after ~250 tokens | N/A |
-| **Status** | OK | Broken on this model | Crash (missing Metal kernel) |
+**The compression is real, but the quality isn't there yet.**
 
-> The memory compression is real. Quality issues on Gemma 3 4B — might be model-specific.
+- turbo3 **produces garbage output** on Gemma 3 4B (all prompt lengths)
+- turbo3 **crashes** on Llama 3.1 8B (GGML_ASSERT failure during KV cache init)
+- turbo4 **crashes** on both models (missing Metal shader)
+- Standard q4_0 already gives **3.6x compression** with zero quality loss and comparable speed
+
+> This is early-stage experimental code, not a production feature. The underlying math is sound — the implementation has gaps.
 
 ---
 
@@ -26,93 +25,139 @@ TurboQuant promises up to 4.6x KV cache compression with minimal quality loss. I
 |---|---|
 | **Machine** | MacBook Pro, Apple M3 Max, 64 GB unified memory |
 | **OS** | macOS (Apple Silicon, arm64) |
-| **Model** | [Gemma 3 4B Instruct Q4_K_M](https://huggingface.co/bartowski/google_gemma-3-4b-it-GGUF) (2.31 GiB) |
 | **Fork** | [TheTom/llama-cpp-turboquant](https://github.com/TheTom/llama-cpp-turboquant) branch `feature/turboquant-kv-cache` |
 | **Build** | b8506-dfc109798, Metal + Flash Attention (embedded library) |
-| **Backend** | GPU (Metal), all 35 layers offloaded |
+| **Backend** | GPU (Metal), all layers offloaded |
+
+### Models
+
+| Model | Size | Architecture | Head dim | KV heads |
+|-------|------|-------------|----------|----------|
+| [Gemma 3 4B Instruct Q4_K_M](https://huggingface.co/bartowski/google_gemma-3-4b-it-GGUF) | 2.3 GiB | GQA, sliding window + global | 256 | 4 |
+| [Llama 3.1 8B Instruct Q4_K_M](https://huggingface.co/bartowski/Meta-Llama-3.1-8B-Instruct-GGUF) | 4.6 GiB | GQA, standard attention | 128 | 8 |
+
+### Protocol
+
+- **5 configs**: baseline (f16), q8_0, q4_0, turbo3, turbo4
+- **3 prompt lengths**: short (~50 tokens), medium (~500 tokens), long (~1500 tokens)
+- **3 runs per config** — median values reported
+- Fixed seed (42), greedy sampling (temp 0), context 8192, 512 tokens generated
+
+See [`PROTOCOL.md`](PROTOCOL.md) for the full test protocol.
 
 ---
 
-## Results in Detail
+## Results: Gemma 3 4B
 
-### Memory: KV Cache Compression
-
-This is where TurboQuant delivers. The compression ratios match the claims.
+### KV Cache Memory
 
 ```
-                    Baseline (f16)          Turbo3              Turbo4
-                    ──────────────          ──────              ──────
-Non-SWA cache       160.00 MiB              35.00 MiB           42.50 MiB
-  K                  80.00 MiB (f16)        17.50 MiB (turbo3)  21.25 MiB (turbo4)
-  V                  80.00 MiB (f16)        17.50 MiB (turbo3)  21.25 MiB (turbo4)
-
-SWA cache           174.00 MiB              38.06 MiB           46.22 MiB
-  K                  87.00 MiB (f16)        19.03 MiB (turbo3)  23.11 MiB (turbo4)
-  V                  87.00 MiB (f16)        19.03 MiB (turbo3)  23.11 MiB (turbo4)
-
-Total KV            334 MiB                 73 MiB              89 MiB
-Compression         1x                      4.6x                3.8x
-GPU total           3219 MiB                2958 MiB            2974 MiB
+Config      KV cache (total)    Compression    Status
+─────────   ────────────────    ───────────    ──────
+baseline    334 MiB             1x             OK
+q8_0        177 MiB             1.9x           OK
+q4_0         94 MiB             3.6x           OK
+turbo3       73 MiB             4.6x           Garbage output
+turbo4       89 MiB             3.8x           Crash (missing Metal kernel)
 ```
 
-### Performance
+### Generation Speed (tokens/sec, median of 3 runs)
 
-| Metric | Baseline (f16) | Turbo3 | Delta |
-|--------|---------------|--------|-------|
-| Prompt eval | 1573 t/s (0.64 ms/t) | 1347 t/s (0.74 ms/t) | **-14%** |
-| Generation | 94.52 t/s (10.58 ms/t) | 57.95 t/s (17.26 ms/t) | **-39%** |
-| Total time | 5809 ms | 9288 ms | **+60%** |
-| Load time | 244 ms | 569 ms | +133% |
+| Prompt | baseline | q8_0 | q4_0 | turbo3 |
+|--------|----------|------|------|--------|
+| short | 99.5 | 89.0 | 84.7 | 53.3 |
+| medium | 47.5 | 36.8 | 32.3 | 17.7 |
+| long | 31.6 | 29.2 | 33.4 | 20.0 |
 
-Generation speed drops significantly. The quantize/dequantize overhead and Walsh-Hadamard transform rotation add compute cost that isn't offset by the reduced memory bandwidth.
+### Prompt Eval Speed (tokens/sec, median of 3 runs)
+
+| Prompt | baseline | q8_0 | q4_0 | turbo3 |
+|--------|----------|------|------|--------|
+| short | 896 | 893 | 896 | 821 |
+| medium | 1043 | 781 | 686 | 621 |
+| long | 819 | 775 | 802 | 661 |
 
 ### Output Quality
 
-**Baseline** produces a coherent, well-structured technical architecture document.
+| Config | short | medium | long |
+|--------|-------|--------|------|
+| baseline | OK | OK | OK |
+| q8_0 | OK | OK | OK |
+| q4_0 | OK | OK | OK |
+| turbo3 | **Garbage** | **Garbage** | **Garbage** |
 
-**Turbo3** starts coherent (same structure, similar content) then **degenerates into random Unicode garbage** after approximately 200-250 generated tokens:
+turbo3 output degenerates into random multilingual Unicode immediately after the prompt echo:
 
 ```
 [...] Be specific about technology choices, justify each decision, and discuss
 failure modes for each component. cáiuna sway bitterly ఉండే му জানিয়েছে
 fashionable got‍♂ద్ pe everythingবারের talaga bromineelm教えて dostępneされている
-ܕCellStyle நபி oba survivesមី എല്ലാംvived Gotз affirmeAndUpdateäck değer
-enlightenment उर्दूہورと同 যেদিন claws➳ ritelumat রম gül蕩 [...]
+ܕCellStyle நபி oba survivesមី എല്ലാംvived Gotз affirmeAndUpdateäck değer [...]
 ```
-
-Full outputs are saved in [`results/`](results/).
 
 ---
 
-## Root Cause Analysis
+## Results: Llama 3.1 8B
 
-I dug into the fork's code to understand why. Three issues found:
+### KV Cache Memory
 
-### 1. Turbo3: Fragile rotation coupling
-
-In `src/llama-graph.cpp`, the query pre-rotation (Walsh-Hadamard Transform) is conditionally applied based on head dimension alignment:
-
-```cpp
-if (k->type == GGML_TYPE_TURBO3_0 || k->type == GGML_TYPE_TURBO4_0) {
-    if (q->ne[0] % 128 == 0) {  // conditional!
-        q = ggml_turbo_wht(ctx0, q, 0);
-    }
-}
+```
+Config      KV cache (total)    Compression    Status
+─────────   ────────────────    ───────────    ──────
+baseline    1024 MiB            1x             OK
+q8_0         544 MiB            1.9x           OK
+q4_0         288 MiB            3.6x           OK
+turbo3       —                  —              CRASH (GGML_ASSERT)
+turbo4       —                  —              CRASH (missing Metal kernel)
 ```
 
-Meanwhile, the Metal dequantization shaders **removed** the inverse rotation, assuming pre-rotation always happens. If it's ever skipped, Q and K/V end up in different vector spaces, and attention produces garbage.
+### Generation Speed (tokens/sec, median of 3 runs)
 
-For Gemma 3 (`n_embd_head_k = 256`), the condition passes. But the cumulative quantization error at 3.25 bits compounds over the sequence, causing attention to diverge after ~250 tokens.
+| Prompt | baseline | q8_0 | q4_0 |
+|--------|----------|------|------|
+| short | 21.0 | 24.8 | 25.0 |
+| medium | 25.6 | 23.3 | 26.6 |
+| long | 28.5 | 32.4 | 34.1 |
 
-### 2. Turbo3: CPU quantization is a stub
+turbo3 crashes during KV cache initialization with `GGML_ASSERT(obj_new) failed` — the turbo3 block structure is incompatible with Llama 3.1's 128-dim heads.
 
-The CPU fallback in `ggml/src/ggml-turbo-quant.c` zeros out the quantized values instead of performing actual quantization. If any KV computation falls back to CPU, the stored values are zeros.
+### Output Quality
 
-### 3. Turbo4: Missing Metal shader
+| Config | short | medium | long |
+|--------|-------|--------|------|
+| baseline | OK | OK | OK |
+| q8_0 | OK | OK | OK |
+| q4_0 | OK | OK | OK |
+| turbo3 | **CRASH** | **CRASH** | **CRASH** |
 
-The non-vectorized Flash Attention kernel for turbo4 (`kernel_flash_attn_ext_turbo4_dk256_dv256`) simply doesn't exist in the Metal shader file. During prompt evaluation (batch > 20), the non-vectorized path is selected, the pipeline compilation fails, and the process segfaults (exit code 139).
+---
 
-See [`CODE_ANALYSIS.md`](CODE_ANALYSIS.md) for the full analysis with code references.
+## The Real Competitor: q4_0
+
+The most useful finding isn't about TurboQuant — it's that **standard q4_0 KV cache quantization already works well**:
+
+| | q4_0 | turbo3 |
+|---|---|---|
+| Compression | 3.6x | 4.6x |
+| Speed impact | Minimal | -39% to -56% |
+| Quality loss | None observed | Total degradation |
+| Stability | Solid | Crash or garbage |
+
+q4_0 gives 3.6x compression with zero quality loss and no speed penalty. TurboQuant's extra 1x of compression comes at a steep cost.
+
+---
+
+## Code Analysis
+
+I looked at the fork's source to understand the failures. Three implementation issues:
+
+**1. Fragile WHT rotation coupling** — The query pre-rotation (Walsh-Hadamard Transform) is conditionally applied, but the Metal dequant shaders assume it always happens. Skipping it puts Q and K/V in different vector spaces.
+
+**2. CPU quantization is a stub** — The CPU fallback zeroes out values instead of quantizing. No CPU-only path works.
+
+**3. Missing turbo4 Metal kernels** — Non-vectorized Flash Attention kernels for turbo4 don't exist. Prompt eval (batch > 20) needs them, so it crashes.
+
+See [`CODE_ANALYSIS.md`](CODE_ANALYSIS.md) for details.
 
 ---
 
@@ -122,12 +167,11 @@ See [`CODE_ANALYSIS.md`](CODE_ANALYSIS.md) for the full analysis with code refer
 
 - Apple Silicon Mac (M1/M2/M3/M4)
 - cmake, git, Xcode CLI tools
-- ~6 GB free disk space
+- ~10 GB free disk space (models + build)
 
 ### Setup
 
 ```bash
-# Clone this benchmark repo
 git clone https://github.com/pjmalandrino/turboquant-benchmark.git
 cd turboquant-benchmark
 
@@ -138,61 +182,59 @@ cd llama-cpp
 cmake -B build -DGGML_METAL=ON -DGGML_METAL_EMBED_LIBRARY=ON -DCMAKE_BUILD_TYPE=Release
 cmake --build build --config Release -j$(sysctl -n hw.ncpu)
 
-# Download the model (~2.3 GB)
+# Download models
 mkdir -p models
 huggingface-cli download bartowski/google_gemma-3-4b-it-GGUF \
   google_gemma-3-4b-it-Q4_K_M.gguf --local-dir models/
+huggingface-cli download bartowski/Meta-Llama-3.1-8B-Instruct-GGUF \
+  Meta-Llama-3.1-8B-Instruct-Q4_K_M.gguf --local-dir models/
 
-# Copy benchmark files into the build directory
-cp ../run_experiment.sh ../prompt.txt .
+# Copy benchmark files
+cp ../run_experiment.sh .
+cp -r ../prompts .
 ```
 
 ### Run
 
 ```bash
-# Run each config (one at a time)
-./run_experiment.sh baseline
-./run_experiment.sh turbo3
-./run_experiment.sh turbo4    # will crash — expected
+# Single config
+./run_experiment.sh baseline -r 3 -p medium -m models/google_gemma-3-4b-it-Q4_K_M.gguf
 
-# Results are in results/
+# Full protocol (all configs, one model)
+for config in baseline q8_0 q4_0 turbo3; do
+  for prompt in short medium long; do
+    ./run_experiment.sh "$config" -r 3 -p "$prompt" -m models/google_gemma-3-4b-it-Q4_K_M.gguf
+  done
+done
 ```
 
-### Run parameters
+### Script usage
 
-| Parameter | Value | Flag |
-|-----------|-------|------|
-| GPU layers | 99 (all offloaded) | `-ngl 99` |
-| Context window | 8192 | `-c 8192` |
-| Tokens to generate | 512 | `-n 512` |
-| Seed | 42 (deterministic) | `--seed 42` |
-| Temperature | 0 (greedy) | `--temp 0` |
-| Mode | Completion (no chat) | `-no-cnv` |
+```
+./run_experiment.sh <config> [-r NUM_RUNS] [-p short|medium|long] [-m MODEL_PATH]
+
+Configs: baseline, q8_0, q4_0, turbo3, turbo4
+```
 
 ---
 
 ## Conclusion
 
-TurboQuant is a **promising research direction** with genuinely impressive compression ratios. The 4.6x KV cache reduction would be very valuable for memory-constrained deployments.
+TurboQuant's KV cache compression ratios are real and impressive (4.6x). The underlying Walsh-Hadamard Transform approach is mathematically sound.
 
-However, in my testing (Gemma 3 4B, single model):
-- Output quality **broke down** with turbo3 after ~250 tokens — this might be model-specific
-- turbo4 **crashed** due to incomplete Metal shader coverage
-- Generation speed was **39% slower**, not faster
-- The CPU fallback is a placeholder (stub that zeros out values)
+But in practice, on the two models I tested:
+- Output quality is **broken** (Gemma) or the process **crashes** (Llama)
+- Generation speed is **significantly slower**
+- Standard q4_0 already provides 3.6x compression with no downsides
 
-**This is not a criticism of the project** — it's clearly experimental, work-in-progress code. The underlying math (Walsh-Hadamard Transform based quantization) is sound. The issues are implementation gaps, not fundamental flaws.
+This is early-stage experimental code. The issues are implementation gaps (stub CPU path, missing shaders, fragile conditionals), not fundamental algorithm flaws. Worth watching for future updates.
 
-### Limitations of this benchmark
+### What I didn't test
 
-- **Single model tested** — Gemma 3 4B may be particularly sensitive to KV quantization (256-dim heads, GQA, sliding window). Results could differ on other architectures.
-- **Single run per config** — no variance measured yet. See [`PROTOCOL.md`](PROTOCOL.md) for the improved test plan.
-- **No comparison with q8_0/q4_0** — llama.cpp already supports KV cache quantization with standard types. A proper benchmark should include those as reference points.
-
-Worth watching for future updates, especially:
-- Complete Metal shader coverage
-- Proper CPU fallback
-- Quality validation across model architectures
+- Other model architectures (Phi, Mistral, Qwen...)
+- Disabling Flash Attention as a turbo4 workaround
+- Larger context windows where KV compression matters more
+- The Python prototype ([turboquant_plus](https://github.com/TheTom/turboquant_plus)) for validating the algorithm in isolation
 
 ---
 
@@ -200,17 +242,18 @@ Worth watching for future updates, especially:
 
 ```
 .
-├── README.md                           # This file
-├── PROTOCOL.md                         # Improved test protocol (v2)
-├── CODE_ANALYSIS.md                    # Deep dive into the fork's code
-├── RESULTS.md                          # Full benchmark data with all metrics
-├── run_experiment.sh                   # Benchmark script (bash, configurable)
-├── prompt.txt                          # The prompt used for all runs
-├── results/                            # Raw outputs from each run
-└── LICENSE                             # MIT
+├── README.md              # This file
+├── PROTOCOL.md            # Test protocol (v2)
+├── CODE_ANALYSIS.md       # Analysis of the fork's code
+├── RESULTS.md             # Full raw benchmark data
+├── run_experiment.sh      # Benchmark script
+├── prompts/               # short.txt, medium.txt, long.txt
+│   ├── short.txt
+│   ├── medium.txt
+│   └── long.txt
+├── results/               # Raw outputs organized by model/prompt
+└── LICENSE                # MIT
 ```
-
----
 
 ## License
 
