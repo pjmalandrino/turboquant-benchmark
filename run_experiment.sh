@@ -1,4 +1,4 @@
-#!/bin/zsh
+#!/usr/bin/env bash
 # =============================================================
 # TurboQuant KV Cache Experiment Runner
 # =============================================================
@@ -129,7 +129,7 @@ for run_num in $(seq 1 "$NUM_RUNS"); do
     echo "---------------------------------------------"
 
     eval "$full_cmd" 2>&1 | tee "$output_file"
-    exit_code=${pipestatus[1]:-$?}
+    exit_code=${PIPESTATUS[0]:-$?}
 
     echo ""
     echo "---------------------------------------------"

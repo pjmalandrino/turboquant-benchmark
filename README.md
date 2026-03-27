@@ -2,7 +2,7 @@
 
 **An honest, reproducible benchmark of [TurboQuant](https://github.com/TheTom/llama-cpp-turboquant) KV cache quantization on Apple Silicon.**
 
-TurboQuant promises up to 4.6x KV cache compression with minimal quality loss. We tested it. Here's what actually happened.
+TurboQuant promises up to 4.6x KV cache compression with minimal quality loss. I tested it on Gemma 3 4B. Here's what I found.
 
 ---
 
@@ -14,9 +14,9 @@ TurboQuant promises up to 4.6x KV cache compression with minimal quality loss. W
 | **Compression** | 1x | **4.6x** | **3.8x** |
 | **Generation speed** | 94.5 t/s | 58.0 t/s (-39%) | N/A |
 | **Output quality** | Coherent | Garbage after ~250 tokens | N/A |
-| **Status** | OK | Unusable output | Crash (missing Metal kernel) |
+| **Status** | OK | Broken on this model | Crash (missing Metal kernel) |
 
-> The memory compression is real. The quality is not there yet.
+> The memory compression is real. Quality issues on Gemma 3 4B — might be model-specific.
 
 ---
 
@@ -86,7 +86,7 @@ Full outputs are saved in [`results/`](results/).
 
 ## Root Cause Analysis
 
-We dug into the fork's code to understand why. Three issues found:
+I dug into the fork's code to understand why. Three issues found:
 
 ### 1. Turbo3: Fragile rotation coupling
 
@@ -175,13 +175,19 @@ cp ../run_experiment.sh ../prompt.txt .
 
 TurboQuant is a **promising research direction** with genuinely impressive compression ratios. The 4.6x KV cache reduction would be very valuable for memory-constrained deployments.
 
-However, in its current state on this fork:
-- Output quality is **broken** for turbo3 on Gemma 3 4B
-- turbo4 **crashes** due to incomplete Metal shader coverage
-- Generation speed is **39% slower**, not faster as claimed
-- The CPU fallback is **non-functional**
+However, in my testing (Gemma 3 4B, single model):
+- Output quality **broke down** with turbo3 after ~250 tokens — this might be model-specific
+- turbo4 **crashed** due to incomplete Metal shader coverage
+- Generation speed was **39% slower**, not faster
+- The CPU fallback is a placeholder (stub that zeros out values)
 
-**This is not a criticism of the project** -- it's clearly experimental, work-in-progress code. The underlying math (Walsh-Hadamard Transform based quantization) is sound. The issues are implementation gaps, not fundamental flaws.
+**This is not a criticism of the project** — it's clearly experimental, work-in-progress code. The underlying math (Walsh-Hadamard Transform based quantization) is sound. The issues are implementation gaps, not fundamental flaws.
+
+### Limitations of this benchmark
+
+- **Single model tested** — Gemma 3 4B may be particularly sensitive to KV quantization (256-dim heads, GQA, sliding window). Results could differ on other architectures.
+- **Single run per config** — no variance measured yet. See [`PROTOCOL.md`](PROTOCOL.md) for the improved test plan.
+- **No comparison with q8_0/q4_0** — llama.cpp already supports KV cache quantization with standard types. A proper benchmark should include those as reference points.
 
 Worth watching for future updates, especially:
 - Complete Metal shader coverage
@@ -195,16 +201,12 @@ Worth watching for future updates, especially:
 ```
 .
 ├── README.md                           # This file
+├── PROTOCOL.md                         # Improved test protocol (v2)
 ├── CODE_ANALYSIS.md                    # Deep dive into the fork's code
-├── RESULTS.md                          # Full benchmark report with all metrics
-├── run_experiment.sh                   # Benchmark script (configurable)
+├── RESULTS.md                          # Full benchmark data with all metrics
+├── run_experiment.sh                   # Benchmark script (bash, configurable)
 ├── prompt.txt                          # The prompt used for all runs
-├── results/
-│   ├── baseline_run1_output.txt        # Full baseline output + metrics
-│   ├── turbo3_run1_output.txt          # Full turbo3 output (with garbage)
-│   ├── turbo4_run1_output.txt          # Turbo4 crash output
-│   ├── *_command.txt                   # Exact commands used
-│   └── *_memory.txt                    # Memory snapshots (vm_stat)
+├── results/                            # Raw outputs from each run
 └── LICENSE                             # MIT
 ```
 

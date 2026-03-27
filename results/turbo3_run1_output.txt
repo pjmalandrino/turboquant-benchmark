@@ -23,7 +23,7 @@ llama_params_fit_impl: will leave 46193 >= 1024 MiB of free device memory, no ch
 llama_params_fit: successfully fit params to free device memory
 llama_params_fit: fitting params to free memory took 0.18 seconds
 llama_model_load_from_file_impl: using device MTL0 (Apple M3 Max) (unknown id) - 49151 MiB free
-llama_model_loader: loaded meta data with 44 key-value pairs and 444 tensors from /Users/pjmalandrino/Documents/Pro/workspace/poc/turbo-quant/llama-cpp-turboquant/models/google_gemma-3-4b-it-Q4_K_M.gguf (version GGUF V3 (latest))
+llama_model_loader: loaded meta data with 44 key-value pairs and 444 tensors from models/google_gemma-3-4b-it-Q4_K_M.gguf (version GGUF V3 (latest))
 llama_model_loader: Dumping metadata keys/values. Note: KV overrides do not apply in this output.
 llama_model_loader: - kv   0:                       general.architecture str              = gemma3
 llama_model_loader: - kv   1:                               general.type str              = model
