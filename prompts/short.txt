@@ -1,0 +1,1 @@
+Explain how CRDTs (Conflict-free Replicated Data Types) work for real-time collaborative text editing. Cover the difference between operation-based and state-based approaches, and explain why Yjs is commonly chosen over Automerge for production editors.
