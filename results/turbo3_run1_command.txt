@@ -1,1 +1,0 @@
-./build/bin/llama-completion -m models/google_gemma-3-4b-it-Q4_K_M.gguf -ngl 99 -c 8192 -n 512 -f prompt.txt --seed 42 --temp 0 -no-cnv --cache-type-k turbo3 --cache-type-v turbo3
