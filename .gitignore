@@ -1,0 +1,15 @@
+# Model files (too large for git)
+models/
+*.gguf
+
+# Build artifacts
+build/
+CMakeCache.txt
+CMakeFiles/
+
+# macOS
+.DS_Store
+
+# Editor
+.vscode/
+.idea/
