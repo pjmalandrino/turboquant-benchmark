@@ -1,0 +1,65 @@
+=== SYSTEM MEMORY BEFORE ===
+--- vm_stat ---
+Mach Virtual Memory Statistics: (page size of 16384 bytes)
+Pages free:                             2045532.
+Pages active:                            960164.
+Pages inactive:                          650037.
+Pages speculative:                       309912.
+Pages throttled:                              0.
+Pages wired down:                        171444.
+Pages purgeable:                         160674.
+"Translation faults":                   9754740.
+Pages copy-on-write:                     636324.
+Pages zero filled:                      4646332.
+Pages reactivated:                         4504.
+Pages purged:                             52479.
+File-backed pages:                       979768.
+Anonymous pages:                         940345.
+Pages stored in compressor:                   0.
+Pages occupied by compressor:                 0.
+Decompressions:                               0.
+Compressions:                                 0.
+Pageins:                                 842452.
+Pageouts:                                     0.
+Swapins:                                      0.
+Swapouts:                                     0.
+
+--- memory_pressure ---
+The system has 68719476736 (4194304 pages with a page size of 16384).
+
+Stats: 
+Pages free: 2045502 
+Pages purgeable: 160674 
+
+=== SYSTEM MEMORY AFTER ===
+--- vm_stat ---
+Mach Virtual Memory Statistics: (page size of 16384 bytes)
+Pages free:                             1987019.
+Pages active:                            884620.
+Pages inactive:                          648976.
+Pages speculative:                       246703.
+Pages throttled:                              0.
+Pages wired down:                        369958.
+Pages purgeable:                         150574.
+"Translation faults":                   9814079.
+Pages copy-on-write:                     638841.
+Pages zero filled:                      4709195.
+Pages reactivated:                         4504.
+Pages purged:                             52479.
+File-backed pages:                       828243.
+Anonymous pages:                         952056.
+Pages stored in compressor:                   0.
+Pages occupied by compressor:                 0.
+Decompressions:                               0.
+Compressions:                                 0.
+Pageins:                                 842526.
+Pageouts:                                     0.
+Swapins:                                      0.
+Swapouts:                                     0.
+
+--- memory_pressure ---
+The system has 68719476736 (4194304 pages with a page size of 16384).
+
+Stats: 
+Pages free: 1989114 
+Pages purgeable: 150459 
